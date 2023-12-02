@@ -15,3 +15,6 @@ Para iniciar a API Rest do backend:
    ```bash
    npm install
    node index
+
+Pronto, agora já está pronto para inicializar o projeto.
+Entre na pasta do projeto, e clique no HTML executável.
