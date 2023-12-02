@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <title>Product Management</title>
+  </head>
+
+  <body>
+    <nav class="bg-gray-800">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <a class="text-white text-lg" href="#"> Product Management </a>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              href="#create-product"
+              >Create Product</a
+            >
+            <a
+              class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              href="#edit-product"
+              >Edit Product</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto my-8 px-4">
+      <h2 id="create-product" class="text-2xl font-bold mb-4">
+        Create Product
+      </h2>
+
+      <form
+        id="create-product-form"
+        class="bg-white border border-gray-300 rounded-md p-4"
+      >
+        <div class="mb-4">
+          <label
+            for="product-name"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Product Name:</label
+          >
+          <input
+            type="text"
+            id="product-name"
+            name="product-name"
+            class="w-full border border-gray-300 rounded-md px-3 py-2"
+            required
+          />
+        </div>
+        <div class="mb-4">
+          <label
+            for="product-price"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Product Price:</label
+          >
+          <input
+            type="number"
+            id="product-price"
+            name="product-price"
+            class="w-full border border-gray-300 rounded-md px-3 py-2"
+            required
+          />
+        </div>
+        <div class="mb-4">
+          <label
+            for="product-description"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Product Description:</label
+          >
+          <textarea
+            id="product-description"
+            name="product-description"
+            class="w-full border border-gray-300 rounded-md px-3 py-2"
+            required
+          ></textarea>
+        </div>
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+          >
+            Create
+          </button>
+        </div>
+      </form>
+
+      <h2 id="edit-product" class="text-2xl font-bold my-8">Edit Product</h2>
+
+      <table id="product-list" class="w-full border border-gray-300">
+        <thead>
+          <tr>
+            <th class="border-b px-4 py-2">Product ID</th>
+            <th class="border-b px-4 py-2">Product Name</th>
+            <th class="border-b px-4 py-2">Product Price</th>
+            <th class="border-b px-4 py-2">Product Description</th>
+            <th class="border-b px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-center"></tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+      const getProducts = () => {
+        axios
+          .get("http://localhost:5023/products")
+          .then((response) => {
+            const products = response.data;
+            if (!Array.isArray(products)) {
+              console.error("products is not an array:", products);
+              return;
+            }
+            const productList = document
+              .getElementById("product-list")
+              .getElementsByTagName("tbody")[0];
+            productList.innerHTML = "";
+
+            products.forEach((product) => {
+              const row = productList.insertRow();
+
+              const id = row.insertCell();
+              const nameCell = row.insertCell();
+              const priceCell = row.insertCell();
+              const descriptionCell = row.insertCell();
+              const actionsCell = row.insertCell();
+
+              id.textContent = product.id;
+              nameCell.textContent = product.name;
+              priceCell.textContent = product.price;
+              descriptionCell.textContent = product.description;
+
+              const editButton = document.createElement("button");
+              editButton.textContent = "Edit";
+              editButton.onclick = () =>
+                editProduct(product.id, product.name, product.price);
+
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Delete";
+              deleteButton.onclick = () =>
+                deleteProduct(product.id, product.name, product.price);
+
+              actionsCell.appendChild(editButton);
+              actionsCell.appendChild(deleteButton);
+              actionsCell.classList.add("flex", "justify-center", "gap-4");
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+
+      const createProduct = (name, price, description) => {
+        axios
+          .post(`http://localhost:5023/products/`, {
+            name,
+            price,
+            description,
+          })
+          .then((response) => {
+            console.log(response.data);
+            document.getElementById("create-product-form").reset();
+            getProducts();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+
+      const editProduct = (id, name, price, description) => {
+        const newName = prompt("Enter the new product name:", name);
+        const newPrice = prompt("Enter the new product price:", price);
+        const newDescription = prompt(
+          "Enter the new product description:",
+          description
+        );
+
+        axios
+          .put(`http://localhost:5023/products/${id}`, {
+            name: newName,
+            price: newPrice,
+            description: newDescription,
+          })
+          .then((response) => {
+            console.log(response.data);
+            getProducts();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+
+      const deleteProduct = (id) => {
+        if (confirm("Are you sure you want to delete this product?")) {
+          axios
+            .delete(`http://localhost:5023/products/${id}`)
+            .then((response) => {
+              console.log(response.data);
+              getProducts();
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+      };
+
+      document
+        .getElementById("create-product-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = document.getElementById("product-name").value;
+          const price = document.getElementById("product-price").value;
+          const description = document.getElementById(
+            "product-description"
+          ).value;
+          createProduct(name, price, description);
+        });
+
+      getProducts();
+    </script>
+  </body>
+</html>
