@@ -1,0 +1,14 @@
+Dev's:
+  Gustavo Hatanaka
+  Luis Coral
+  Leandro Ostruka
+
+Abra a pasta do backend pelo powershell ou cmd, etc.
+Use o comando `npm install`
+Crie um MySQL-8 (as configurações estão na imagem)
+Crie um banco de dados com o nome stocksystem
+Coloque as tabelas ".sql" no seu banco de dados (elas estão no caminho ".\mysql-8\stocksystem")
+Ligue o banco de dados pelo software de sua preferencia 
+Não esqueça de inserir um usuário no banco de dados antes de iniciar
+Pelo terminal, que esta aberto no backend, use o comando `node index`
+Por fim, abra o html
